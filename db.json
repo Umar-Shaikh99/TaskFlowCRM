@@ -1,0 +1,172 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "Umar Admin",
+      "email": "admin@test.com",
+      "role": "ADMIN",
+      "password": "admin123",
+      "status": "ACTIVE",
+      "createdAt": "2026-06-01"
+    },
+    {
+      "id": "2",
+      "name": "Manager User",
+      "email": "manager@test.com",
+      "role": "MANAGER",
+      "password": "manager123",
+      "status": "ACTIVE",
+      "createdAt": "2026-06-02"
+    },
+    {
+      "id": "3",
+      "name": "Regular User",
+      "email": "user@test.com",
+      "role": "USER",
+      "password": "user123",
+      "status": "ACTIVE",
+      "createdAt": "2026-06-03"
+    },
+    {
+      "id": "5",
+      "name": "Charlie Brown",
+      "email": "charlie@test.com",
+      "role": "USER",
+      "password": "user123",
+      "status": "INACTIVE",
+      "createdAt": "2026-06-05"
+    },
+    {
+      "id": "6",
+      "name": "Diana Prince",
+      "email": "diana@test.com",
+      "role": "MANAGER",
+      "password": "manager123",
+      "status": "ACTIVE",
+      "createdAt": "2026-06-06"
+    },
+    {
+      "id": "7",
+      "name": "Bruce Wayne",
+      "email": "bruce@test.com",
+      "role": "ADMIN",
+      "password": "admin123",
+      "status": "ACTIVE",
+      "createdAt": "2026-06-07"
+    },
+    {
+      "id": "8",
+      "name": "Clark Kent",
+      "email": "clark@test.com",
+      "role": "USER",
+      "password": "user123",
+      "status": "ACTIVE",
+      "createdAt": "2026-06-08"
+    },
+    {
+      "id": "9",
+      "name": "Peter Parker",
+      "email": "peter@test.com",
+      "role": "USER",
+      "password": "user123",
+      "status": "INACTIVE",
+      "createdAt": "2026-06-09"
+    },
+    {
+      "id": "10",
+      "name": "Tony Stark",
+      "email": "tony@test.com",
+      "role": "ADMIN",
+      "password": "admin123",
+      "status": "ACTIVE",
+      "createdAt": "2026-06-10"
+    }
+  ],
+  "tasks": [],
+  "activities": [
+    {
+      "id": "201",
+      "type": "auth_login",
+      "description": "Admin User logged into the platform",
+      "userId": "1",
+      "createdAt": "2026-06-14T08:00:00.000Z"
+    },
+    {
+      "id": "202",
+      "type": "task_created",
+      "description": "Task 'Setup Redux Slices' was created by Manager User",
+      "userId": "2",
+      "createdAt": "2026-06-14T08:15:00.000Z"
+    },
+    {
+      "id": "203",
+      "type": "task_updated",
+      "description": "Task 'Configure React 19 Core' status moved to DONE",
+      "userId": "1",
+      "createdAt": "2026-06-14T08:20:00.000Z"
+    },
+    {
+      "id": "204",
+      "type": "user_added",
+      "description": "New team member Alice Cooper was invited by Admin User",
+      "userId": "1",
+      "createdAt": "2026-06-14T08:30:00.000Z"
+    },
+    {
+      "id": "205",
+      "type": "auth_login",
+      "description": "Diana Prince logged into the platform",
+      "userId": "6",
+      "createdAt": "2026-06-14T08:35:00.000Z"
+    },
+    {
+      "id": "206",
+      "type": "task_updated",
+      "description": "Task 'Integrate Shadcn primitives' assigned to Regular User",
+      "userId": "2",
+      "createdAt": "2026-06-14T08:40:00.000Z"
+    },
+    {
+      "id": "207",
+      "type": "task_created",
+      "description": "Task 'Verify build outputs' created by Admin User",
+      "userId": "1",
+      "createdAt": "2026-06-14T08:45:00.000Z"
+    },
+    {
+      "id": "208",
+      "type": "user_updated",
+      "description": "Peter Parker account set to INACTIVE by Admin User",
+      "userId": "1",
+      "createdAt": "2026-06-14T08:50:00.000Z"
+    },
+    {
+      "id": "209",
+      "type": "task_updated",
+      "description": "Task 'Audit database structure' status moved to DONE",
+      "userId": "7",
+      "createdAt": "2026-06-14T08:55:00.000Z"
+    },
+    {
+      "id": "210",
+      "type": "auth_login",
+      "description": "Regular User logged into the platform",
+      "userId": "3",
+      "createdAt": "2026-06-14T09:00:00.000Z"
+    },
+    {
+      "id": "1781457421528",
+      "type": "task_deleted",
+      "description": "A task was deleted by Admin User",
+      "userId": "1",
+      "createdAt": "2026-06-14T17:17:01.528Z"
+    },
+    {
+      "id": "1781462122449",
+      "type": "auth_login",
+      "description": "Umar Admin logged into the platform",
+      "userId": "1",
+      "createdAt": "2026-06-14T18:35:22.449Z"
+    }
+  ]
+}
