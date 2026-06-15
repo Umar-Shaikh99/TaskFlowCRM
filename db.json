@@ -55,15 +55,6 @@
       "createdAt": "2026-06-07"
     },
     {
-      "id": "8",
-      "name": "Clark Kent",
-      "email": "clark@test.com",
-      "role": "USER",
-      "password": "user123",
-      "status": "ACTIVE",
-      "createdAt": "2026-06-08"
-    },
-    {
       "id": "9",
       "name": "Peter Parker",
       "email": "peter@test.com",
@@ -82,7 +73,20 @@
       "createdAt": "2026-06-10"
     }
   ],
-  "tasks": [],
+  "tasks": [
+    {
+      "title": "auth flow checkup",
+      "description": "Test the full auth flow scenarios end to end with unit test cases",
+      "status": "REVIEW",
+      "priority": "HIGH",
+      "assignedTo": "3",
+      "dueDate": "2026-06-30",
+      "creatorId": "1",
+      "createdAt": "2026-06-14",
+      "updatedAt": "2026-06-14",
+      "id": 1
+    }
+  ],
   "activities": [
     {
       "id": "201",
@@ -167,6 +171,13 @@
       "description": "Umar Admin logged into the platform",
       "userId": "1",
       "createdAt": "2026-06-14T18:35:22.449Z"
+    },
+    {
+      "id": "1781468621492",
+      "type": "task_updated",
+      "description": "Task 'auth flow checkup' was updated by Umar Admin",
+      "userId": "1",
+      "createdAt": "2026-06-14T20:23:41.492Z"
     }
   ]
 }

@@ -88,7 +88,10 @@ const taskSlice = createSlice({
       })
       .addCase(fetchTasks.fulfilled, (state, action) => {
         state.isLoading = false
-        state.tasks = action.payload
+        state.tasks = action.payload.map((t: Task) => ({
+          ...t,
+          id: String(t.id),
+        }))
       })
       .addCase(fetchTasks.rejected, (state, action) => {
         state.isLoading = false
@@ -112,7 +115,10 @@ const taskSlice = createSlice({
         state.isLoading = false
         // Remove temp and add real
         state.tasks = state.tasks.filter((t) => t.id !== `temp-${action.meta.requestId}`)
-        state.tasks.push(action.payload)
+        state.tasks.push({
+          ...action.payload,
+          id: String(action.payload.id),
+        })
       })
       .addCase(createTask.rejected, (state, action) => {
         state.isLoading = false
@@ -124,7 +130,7 @@ const taskSlice = createSlice({
       .addCase(updateTask.pending, (state, action) => {
         state.isLoading = true
         state.error = null
-        const task = state.tasks.find((t) => t.id === action.meta.arg.id)
+        const task = state.tasks.find((t) => String(t.id) === String(action.meta.arg.id))
         if (task) {
           if (!state.rollbackCache) state.rollbackCache = {}
           state.rollbackCache[action.meta.requestId] = { ...task }
@@ -137,12 +143,16 @@ const taskSlice = createSlice({
         if (state.rollbackCache) {
           delete state.rollbackCache[action.meta.requestId]
         }
-        const index = state.tasks.findIndex((t) => t.id === action.payload.id)
-        if (index !== -1) {
-          state.tasks[index] = action.payload
+        const updatedTask = {
+          ...action.payload,
+          id: String(action.payload.id),
         }
-        if (state.selectedTask?.id === action.payload.id) {
-          state.selectedTask = action.payload
+        const index = state.tasks.findIndex((t) => String(t.id) === updatedTask.id)
+        if (index !== -1) {
+          state.tasks[index] = updatedTask
+        }
+        if (state.selectedTask && String(state.selectedTask.id) === updatedTask.id) {
+          state.selectedTask = updatedTask
         }
       })
       .addCase(updateTask.rejected, (state, action) => {
@@ -150,7 +160,7 @@ const taskSlice = createSlice({
         state.error = action.payload as string
         if (state.rollbackCache && state.rollbackCache[action.meta.requestId]) {
           const originalTask = state.rollbackCache[action.meta.requestId]
-          const index = state.tasks.findIndex((t) => t.id === originalTask.id)
+          const index = state.tasks.findIndex((t) => String(t.id) === String(originalTask.id))
           if (index !== -1) {
             state.tasks[index] = originalTask
           }
@@ -161,11 +171,11 @@ const taskSlice = createSlice({
       .addCase(deleteTask.pending, (state, action) => {
         state.isLoading = true
         state.error = null
-        const task = state.tasks.find((t) => t.id === action.meta.arg)
+        const task = state.tasks.find((t) => String(t.id) === String(action.meta.arg))
         if (task) {
           if (!state.rollbackCache) state.rollbackCache = {}
           state.rollbackCache[action.meta.requestId] = { ...task }
-          state.tasks = state.tasks.filter((t) => t.id !== action.meta.arg)
+          state.tasks = state.tasks.filter((t) => String(t.id) !== String(action.meta.arg))
         }
       })
       .addCase(deleteTask.fulfilled, (state, action) => {
@@ -173,7 +183,7 @@ const taskSlice = createSlice({
         if (state.rollbackCache) {
           delete state.rollbackCache[action.meta.requestId]
         }
-        if (state.selectedTask?.id === action.payload) {
+        if (state.selectedTask && String(state.selectedTask.id) === String(action.payload)) {
           state.selectedTask = null
         }
       })
