@@ -55,9 +55,8 @@ function DroppableColumn({
   return (
     <div
       ref={setNodeRef}
-      className={`flex-1 overflow-y-auto space-y-3.5 pr-0.5 min-h-[400px] rounded-lg transition-colors duration-200 p-1.5 -m-1.5 ${
-        isOver ? 'bg-surface-soft/80 border border-dashed border-brand-green/30' : ''
-      }`}
+      className={`flex-1 overflow-y-auto space-y-3.5 pr-0.5 min-h-[400px] rounded-lg transition-colors duration-200 p-1.5 -m-1.5 ${isOver ? 'bg-surface-soft/80 border border-dashed border-brand-green/30' : ''
+        }`}
     >
       {isEmpty ? (
         <div className="text-center py-16 text-xs text-stone font-sans border border-dashed border-hairline/80 rounded-xl bg-canvas/30 backdrop-blur-xs select-none">
@@ -90,9 +89,8 @@ function DraggableTaskCard({
       ref={setNodeRef}
       {...(canEdit ? listeners : {})}
       {...(canEdit ? attributes : {})}
-      className={`relative rounded-xl cursor-grab active:cursor-grabbing select-none outline-none transition-opacity duration-150 ${
-        isDragging ? 'opacity-25' : ''
-      }`}
+      className={`relative rounded-xl cursor-grab active:cursor-grabbing select-none outline-none transition-opacity duration-150 ${isDragging ? 'opacity-25' : ''
+        }`}
     >
       {children}
     </div>
@@ -202,6 +200,7 @@ export const TasksPage: React.FC = () => {
   const { tasks, isLoading, error } = useAppSelector((state) => state.tasks)
   const { users } = useAppSelector((state) => state.users)
   const { can } = usePermissions()
+  const [searchQuery, setSearchQuery] = useState('')
 
   // Dialog States
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -396,6 +395,15 @@ export const TasksPage: React.FC = () => {
     ) : undefined
   }, [can, handleAddClick])
 
+  const filteredTasks = useMemo(() => {
+    return tasks.filter(task =>
+      task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      task.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      getAssigneeName(task.assignedTo).toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  },
+    [tasks, searchQuery, getAssigneeName]
+  )
   return (
     <PageContainer
       title="Task Kanban Board"
@@ -429,10 +437,17 @@ export const TasksPage: React.FC = () => {
           </Alert>
         )}
 
+        <Input
+          placeholder='Search tasks...'
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className='max-w-xs mb-4'
+        />
+
         <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start h-full">
             {columns.map((column) => {
-              const columnTasks = tasks.filter((t) => t.status === column.status)
+              const columnTasks = filteredTasks.filter((t) => t.status === column.status)
 
               return (
                 <div
@@ -459,46 +474,46 @@ export const TasksPage: React.FC = () => {
                   >
                     {isLoading && tasks.length === 0
                       ? Array.from({ length: 2 }).map((_, idx) => (
-                          <Card
-                            key={idx}
-                            className="border-hairline shadow-xs bg-canvas animate-pulse"
-                          >
-                            <CardContent className="p-4 space-y-3">
-                              <div className="flex justify-between items-center">
-                                <Skeleton className="h-4 w-12 rounded" />
-                                <Skeleton className="h-3 w-8 rounded" />
-                              </div>
-                              <div className="space-y-2">
-                                <Skeleton className="h-4 w-3/4 rounded" />
-                                <Skeleton className="h-3 w-full rounded" />
-                              </div>
-                              <div className="flex items-center justify-between border-t border-hairline-soft pt-2.5">
-                                <Skeleton className="h-3 w-16 rounded" />
-                                <Skeleton className="h-3 w-16 rounded" />
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))
+                        <Card
+                          key={idx}
+                          className="border-hairline shadow-xs bg-canvas animate-pulse"
+                        >
+                          <CardContent className="p-4 space-y-3">
+                            <div className="flex justify-between items-center">
+                              <Skeleton className="h-4 w-12 rounded" />
+                              <Skeleton className="h-3 w-8 rounded" />
+                            </div>
+                            <div className="space-y-2">
+                              <Skeleton className="h-4 w-3/4 rounded" />
+                              <Skeleton className="h-3 w-full rounded" />
+                            </div>
+                            <div className="flex items-center justify-between border-t border-hairline-soft pt-2.5">
+                              <Skeleton className="h-3 w-16 rounded" />
+                              <Skeleton className="h-3 w-16 rounded" />
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
                       : columnTasks.map((task) => {
-                          const isTaskEditable = can('tasks:edit', task.assignedTo)
-                          const isTaskDeletable = can('tasks:delete')
-                          const assigneeName = getAssigneeName(task.assignedTo)
-                          const priorityStyle = getPriorityStyle(task.priority)
+                        const isTaskEditable = can('tasks:edit', task.assignedTo)
+                        const isTaskDeletable = can('tasks:delete')
+                        const assigneeName = getAssigneeName(task.assignedTo)
+                        const priorityStyle = getPriorityStyle(task.priority)
 
-                          return (
-                            <DraggableTaskCard key={task.id} task={task} canEdit={isTaskEditable}>
-                              <TaskCard
-                                task={task}
-                                canEdit={isTaskEditable}
-                                canDelete={isTaskDeletable}
-                                assigneeName={assigneeName}
-                                priorityStyle={priorityStyle}
-                                onEdit={handleEditClick}
-                                onDelete={handleDeleteClick}
-                              />
-                            </DraggableTaskCard>
-                          )
-                        })}
+                        return (
+                          <DraggableTaskCard key={task.id} task={task} canEdit={isTaskEditable}>
+                            <TaskCard
+                              task={task}
+                              canEdit={isTaskEditable}
+                              canDelete={isTaskDeletable}
+                              assigneeName={assigneeName}
+                              priorityStyle={priorityStyle}
+                              onEdit={handleEditClick}
+                              onDelete={handleDeleteClick}
+                            />
+                          </DraggableTaskCard>
+                        )
+                      })}
                   </DroppableColumn>
                 </div>
               )

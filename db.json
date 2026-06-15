@@ -75,15 +75,15 @@
   ],
   "tasks": [
     {
-      "title": "auth flow checkup",
-      "description": "Test the full auth flow scenarios end to end with unit test cases",
-      "status": "REVIEW",
+      "title": "Database Replication Audit",
+      "description": "Specify data validation logic",
+      "status": "IN_PROGRESS",
       "priority": "HIGH",
       "assignedTo": "3",
       "dueDate": "2026-06-30",
       "creatorId": "1",
-      "createdAt": "2026-06-14",
-      "updatedAt": "2026-06-14",
+      "createdAt": "2026-06-15",
+      "updatedAt": "2026-06-15",
       "id": 1
     }
   ],
@@ -178,6 +178,13 @@
       "description": "Task 'auth flow checkup' was updated by Umar Admin",
       "userId": "1",
       "createdAt": "2026-06-14T20:23:41.492Z"
+    },
+    {
+      "id": "1781493377256",
+      "type": "task_updated",
+      "description": "Task 'Database Replication Audit' was updated by Umar Admin",
+      "userId": "1",
+      "createdAt": "2026-06-15T03:16:17.256Z"
     }
   ]
 }

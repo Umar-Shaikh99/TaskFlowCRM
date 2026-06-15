@@ -4,7 +4,7 @@ import { SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/app-sidebar'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Header } from '../components/layout/Header'
-import { Footer } from '../components/layout/Footer'
+// import { Footer } from '../components/layout/Footer'
 
 export const DashboardLayout: React.FC = () => {
   return (
@@ -25,7 +25,7 @@ export const DashboardLayout: React.FC = () => {
             </main>
 
             {/* Bottom Footer Details */}
-            <Footer />
+            {/* <Footer /> */}
           </div>
         </div>
       </SidebarProvider>
