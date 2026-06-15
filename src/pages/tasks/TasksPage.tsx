@@ -24,7 +24,7 @@ import { toast } from 'sonner'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { DndContext, useDraggable, useDroppable } from '@dnd-kit/core'
+import { DndContext, useDraggable, useDroppable, DragOverlay } from '@dnd-kit/core'
 import { usePermissions } from '../../hooks/usePermissions'
 
 const taskFormSchema = z.object({
@@ -55,12 +55,12 @@ function DroppableColumn({
   return (
     <div
       ref={setNodeRef}
-      className={`flex-1 overflow-y-auto space-y-3 pr-0.5 min-h-[180px] rounded-lg transition-colors duration-200 p-1 ${
-        isOver ? 'bg-surface-soft border border-dashed border-brand-green/45' : ''
+      className={`flex-1 overflow-y-auto space-y-3.5 pr-0.5 min-h-[400px] rounded-lg transition-colors duration-200 p-1.5 -m-1.5 ${
+        isOver ? 'bg-surface-soft/80 border border-dashed border-brand-green/30' : ''
       }`}
     >
       {isEmpty ? (
-        <div className="text-center py-12 text-xs text-stone font-sans border-2 border-dashed border-hairline rounded-md bg-canvas/30">
+        <div className="text-center py-16 text-xs text-stone font-sans border border-dashed border-hairline/80 rounded-xl bg-canvas/30 backdrop-blur-xs select-none">
           No tasks in this stage
         </div>
       ) : (
@@ -80,37 +80,21 @@ function DraggableTaskCard({
   children: React.ReactNode
   canEdit: boolean
 }) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: task.id,
     disabled: !canEdit, // Only allow drag if user has permission to edit task status
   })
 
-  const style = transform
-    ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-        zIndex: 50,
-      }
-    : undefined
-
   return (
     <div
       ref={setNodeRef}
-      style={style}
-      className={`relative rounded-xl transition-shadow ${
-        isDragging ? 'opacity-40 shadow-md border-brand-green/30 ring-1 ring-brand-green/20' : ''
+      {...(canEdit ? listeners : {})}
+      {...(canEdit ? attributes : {})}
+      className={`relative rounded-xl cursor-grab active:cursor-grabbing select-none outline-none transition-opacity duration-150 ${
+        isDragging ? 'opacity-25' : ''
       }`}
     >
-      {canEdit && (
-        <div
-          {...listeners}
-          {...attributes}
-          className="absolute left-2 top-4 text-steel/40 hover:text-steel/80 p-0.5 rounded cursor-grab active:cursor-grabbing hover:bg-surface-soft transition-colors z-10"
-          title="Drag to change status"
-        >
-          <GripVertical className="w-3.5 h-3.5" />
-        </div>
-      )}
-      <div className={canEdit ? 'pl-6' : ''}>{children}</div>
+      {children}
     </div>
   )
 }
@@ -129,67 +113,82 @@ interface TaskCardProps {
 const TaskCard = React.memo(
   ({ task, canEdit, canDelete, assigneeName, priorityStyle, onEdit, onDelete }: TaskCardProps) => {
     return (
-      <Card className="border-hairline shadow-xs hover:shadow-sm transition-all duration-200 bg-canvas">
-        <CardContent className="p-4 space-y-3">
-          {/* Priority and ID */}
-          <div className="flex justify-between items-center">
+      <Card className="group border-hairline shadow-xs hover:shadow-md transition-all duration-200 bg-canvas hover:border-steel/30 relative overflow-hidden">
+        <CardContent className="p-4 space-y-3.5">
+          {/* Priority and ID + Actions */}
+          <div className="flex justify-between items-start gap-2">
             <Badge
               variant="outline"
               className={`px-2 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase border ${priorityStyle}`}
             >
               {task.priority}
             </Badge>
-            <span className="text-[10px] font-mono text-stone">
-              {String(task.id).startsWith('temp-') ? 'Syncing...' : `#${task.id}`}
-            </span>
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] font-mono text-stone mr-1">
+                {String(task.id).startsWith('temp-') ? 'Syncing...' : `#${task.id}`}
+              </span>
+              {(canEdit || canDelete) && (
+                <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                  {canEdit && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onEdit(task)
+                      }}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onMouseDown={(e) => e.stopPropagation()}
+                      className="h-6 w-6 text-steel hover:text-ink hover:bg-surface/80 border border-hairline/30 rounded cursor-pointer flex items-center justify-center"
+                      aria-label="Edit task"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </Button>
+                  )}
+                  {canDelete && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onDelete(task)
+                      }}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onMouseDown={(e) => e.stopPropagation()}
+                      className="h-6 w-6 text-brand-error/70 hover:text-brand-error hover:bg-brand-error/10 border border-hairline/30 rounded cursor-pointer flex items-center justify-center"
+                      aria-label="Delete task"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Title & Desc */}
           <div className="space-y-1">
-            <h4 className="text-sm font-sans font-semibold text-ink leading-snug">{task.title}</h4>
-            <p className="text-xs text-steel font-sans font-normal line-clamp-2">
+            <h4 className="text-sm font-sans font-semibold text-ink leading-snug group-hover:text-brand-tag transition-colors duration-150">
+              {task.title}
+            </h4>
+            <p className="text-xs text-steel font-sans font-normal line-clamp-2 leading-relaxed">
               {task.description}
             </p>
           </div>
 
-          {/* Footer Info & Actions */}
-          <div className="flex items-center justify-between border-t border-hairline-soft pt-2.5 text-[11px] text-stone">
-            <span className="flex items-center gap-1 font-sans font-normal">
-              <Calendar className="w-3.5 h-3.5 text-stone" />
+          {/* Footer Info */}
+          <div className="flex items-center justify-between border-t border-hairline-soft/80 pt-3 text-[11px] text-stone">
+            <span className="flex items-center gap-1 font-sans font-medium bg-surface-soft px-2 py-0.5 rounded border border-hairline/40">
+              <Calendar className="w-3 h-3 text-stone" />
               {task.dueDate}
             </span>
-            <span className="flex items-center gap-1 font-mono font-medium max-w-[50%] truncate">
-              <User className="w-3.5 h-3.5 text-stone shrink-0" />
-              <span className="truncate">{assigneeName}</span>
+            <span className="flex items-center gap-1.5 font-mono font-medium max-w-[50%] truncate">
+              <span className="w-4 h-4 rounded-full bg-brand-tag/15 text-brand-tag border border-brand-tag/20 flex items-center justify-center text-[9px] uppercase font-sans font-bold shrink-0">
+                {assigneeName.slice(0, 2)}
+              </span>
+              <span className="truncate text-charcoal">{assigneeName}</span>
             </span>
           </div>
-
-          {(canEdit || canDelete) && (
-            <div className="flex justify-end gap-1.5 border-t border-hairline-soft/40 pt-2 shrink-0">
-              {canEdit && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onEdit(task)}
-                  className="h-7 w-7 text-steel hover:text-ink cursor-pointer"
-                  aria-label="Edit task"
-                >
-                  <Edit2 className="w-3 h-3" />
-                </Button>
-              )}
-              {canDelete && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onDelete(task)}
-                  className="h-7 w-7 text-brand-error/70 hover:text-brand-error hover:bg-brand-error/10 cursor-pointer"
-                  aria-label="Delete task"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </Button>
-              )}
-            </div>
-          )}
         </CardContent>
       </Card>
     )
@@ -209,6 +208,7 @@ export const TasksPage: React.FC = () => {
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null)
+  const [activeId, setActiveId] = useState<string | null>(null)
 
   useEffect(() => {
     dispatch(fetchTasks())
@@ -307,16 +307,22 @@ export const TasksPage: React.FC = () => {
     }
   }, [dispatch, taskToDelete])
 
+  // Handle Drag Start event
+  const handleDragStart = useCallback((event: any) => {
+    setActiveId(String(event.active.id))
+  }, [])
+
   // Handle Drag End event
   const handleDragEnd = useCallback(
     async (event: any) => {
+      setActiveId(null)
       const { active, over } = event
       if (!over) return
 
       const taskId = String(active.id)
       const newStatus = over.id as TaskStatus
 
-      const task = tasks.find((t) => t.id === taskId)
+      const task = tasks.find((t) => String(t.id) === taskId)
       if (task && task.status !== newStatus) {
         try {
           const resultAction = await dispatch(
@@ -356,12 +362,25 @@ export const TasksPage: React.FC = () => {
     [users]
   )
 
+  const getDotColor = useCallback((status: TaskStatus) => {
+    switch (status) {
+      case 'TODO':
+        return 'bg-stone/85'
+      case 'IN_PROGRESS':
+        return 'bg-brand-tag'
+      case 'REVIEW':
+        return 'bg-brand-warn'
+      default:
+        return 'bg-brand-green'
+    }
+  }, [])
+
   const columns = useMemo(
     () => [
-      { label: 'To Do', status: 'TODO' as TaskStatus, color: 'border-t-stone/60' },
-      { label: 'In Progress', status: 'IN_PROGRESS' as TaskStatus, color: 'border-t-brand-tag/80' },
-      { label: 'In Review', status: 'REVIEW' as TaskStatus, color: 'border-t-brand-warn/80' },
-      { label: 'Completed', status: 'DONE' as TaskStatus, color: 'border-t-brand-green/80' },
+      { label: 'To Do', status: 'TODO' as TaskStatus },
+      { label: 'In Progress', status: 'IN_PROGRESS' as TaskStatus },
+      { label: 'In Review', status: 'REVIEW' as TaskStatus },
+      { label: 'Completed', status: 'DONE' as TaskStatus },
     ],
     []
   )
@@ -410,7 +429,7 @@ export const TasksPage: React.FC = () => {
           </Alert>
         )}
 
-        <DndContext onDragEnd={handleDragEnd}>
+        <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start h-full">
             {columns.map((column) => {
               const columnTasks = tasks.filter((t) => t.status === column.status)
@@ -418,14 +437,17 @@ export const TasksPage: React.FC = () => {
               return (
                 <div
                   key={column.status}
-                  className={`bg-surface border border-hairline border-t-4 ${column.color} rounded-lg flex flex-col max-h-[80vh] overflow-hidden p-3 space-y-3`}
+                  className="bg-surface/50 border border-hairline rounded-xl flex flex-col max-h-[80vh] overflow-hidden p-3.5 space-y-3.5 shadow-xs"
                 >
                   {/* Column Header */}
-                  <div className="flex items-center justify-between border-b border-hairline pb-2 shrink-0">
-                    <span className="text-xs font-mono font-bold text-charcoal uppercase tracking-wider">
-                      {column.label}
-                    </span>
-                    <span className="text-xs font-mono font-medium bg-canvas px-2 py-0.5 rounded border border-hairline text-steel">
+                  <div className="flex items-center justify-between border-b border-hairline/85 pb-2.5 shrink-0">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${getDotColor(column.status)}`} />
+                      <span className="text-xs font-sans font-bold text-charcoal uppercase tracking-wider">
+                        {column.label}
+                      </span>
+                    </div>
+                    <span className="text-xs font-mono font-semibold bg-canvas px-2.5 py-0.5 rounded-full border border-hairline text-steel">
                       {isLoading && tasks.length === 0 ? '...' : columnTasks.length}
                     </span>
                   </div>
@@ -482,6 +504,31 @@ export const TasksPage: React.FC = () => {
               )
             })}
           </div>
+
+          <DragOverlay>
+            {activeId ? (() => {
+              const activeTask = tasks.find((t) => String(t.id) === activeId)
+              if (!activeTask) return null
+              const isTaskEditable = can('tasks:edit', activeTask.assignedTo)
+              const isTaskDeletable = can('tasks:delete')
+              const assigneeName = getAssigneeName(activeTask.assignedTo)
+              const priorityStyle = getPriorityStyle(activeTask.priority)
+
+              return (
+                <div className="rotate-1.5 scale-102 opacity-95 shadow-md cursor-grabbing">
+                  <TaskCard
+                    task={activeTask}
+                    canEdit={isTaskEditable}
+                    canDelete={isTaskDeletable}
+                    assigneeName={assigneeName}
+                    priorityStyle={priorityStyle}
+                    onEdit={handleEditClick}
+                    onDelete={handleDeleteClick}
+                  />
+                </div>
+              )
+            })() : null}
+          </DragOverlay>
         </DndContext>
       </div>
 
